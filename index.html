@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>VKIC Investment Tracker</title>
+
+<style>
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background: linear-gradient(135deg, #0f172a, #1e293b);
+    color: white;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+}
+
+/* MAIN BOX */
+.container {
+    text-align: center;
+}
+
+/* LOGO */
+.logo {
+    width: 120px;
+    height: auto;
+    margin-bottom: 10px;
+}
+
+/* TITLE */
+.title {
+    font-size: 28px;
+    margin-top: 10px;
+}
+
+/* TAGLINE */
+.tagline {
+    margin-top: 10px;
+    color: #94a3b8;
+}
+
+/* BUTTON */
+.btn {
+    margin-top: 30px;
+    padding: 12px 25px;
+    background: #22c55e;
+    border: none;
+    color: white;
+    font-size: 16px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+.btn:hover {
+    background: #16a34a;
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+    <img src="./images/logo.png" class="logo" alt="VKIC Logo">
+    <div class="title">Personal Finance Tracker</div>
+    <div class="tagline">Track. Analyze. Grow.</div>
+
+    <button class="btn" onclick="goToDashboard()">
+        Move to Dashboard →
+    </button>
+</div>
+
+<script>
+
+function goToDashboard() {
+    window.location.href = "dashboard.html";
+}
+</script>
+
+</body>
+</html>
