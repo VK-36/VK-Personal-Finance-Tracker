@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Income - VKIC</title>
+
+<style>
+body {
+    margin: 0;
+    font-family: Arial;
+    background: #0f172a;
+    color: white;
+}
+
+.header {
+    padding: 20px;
+    text-align: center;
+    background: #1e293b;
+    font-size: 22px;
+}
+
+.container {
+    width: 90%;
+    max-width: 500px;
+    margin: 20px auto;
+}
+
+.card {
+    background: #1e293b;
+    padding: 20px;
+    border-radius: 12px;
+    margin-bottom: 20px;
+}
+
+input, select {
+    width: 100%;
+    padding: 10px;
+    margin-top: 10px;
+    border-radius: 8px;
+    border: none;
+    box-sizing: border-box;
+}
+
+.btn {
+    width: 100%;
+    padding: 12px;
+    margin-top: 15px;
+    background: #22c55e;
+    border: none;
+    color: white;
+    border-radius: 8px;
+    cursor: pointer;
+}
+
+.btn:hover {
+    background: #16a34a;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+th, td {
+    padding: 10px;
+    text-align: center;
+    border-bottom: 1px solid #334155;
+    font-size: 14px;
+}
+
+th {
+    color: #94a3b8;
+}
+
+.action-wrapper {
+    display: flex;
+    gap: 6px;
+}
+
+.action-btn {
+    flex: 1;
+    height: 32px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 12px;
+    color: white;
+}
+
+.edit {
+    background: #3b82f6;
+}
+
+.delete {
+    background: #ef4444;
+}
+
+.back-btn {
+    display: block;
+    width: 90%;
+    max-width: 500px;
+    margin: 10px auto;
+    padding: 10px;
+    background: #334155;
+    border: none;
+    color: white;
+    border-radius: 8px;
+    cursor: pointer;
+}
+</style>
+</head>
+
+<body>
+
+<div class="header">Income Tracker</div>
+
+<div class="container">
+
+    <!-- TOTAL -->
+    <div class="card">
+        <h3>Total Income: ₹<span id="totalIncome">0</span></h3>
+    </div>
+
+    <!-- FORM -->
+    <div class="card">
+        <input type="number" id="amount" placeholder="Amount (₹)">
+        
+        <select id="category">
+            <option>Salary</option>
+            <option>Freelance</option>
+            <option>Business</option>
+            <option>Gift</option>
+            <option>Other</option>
+        </select>
+
+        <input type="date" id="date">
+        <input type="text" id="note" placeholder="Note (optional)">
+
+        <button class="btn" onclick="addIncome()" id="mainBtn">Add Income</button>
+    </div>
+
+    <!-- TABLE -->
+    <div class="card">
+        <table>
+            <thead>
+                <tr>
+                    <th>₹</th>
+                    <th>Category</th>
+                    <th>Date</th>
+                    <th>Note</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody id="incomeTable"></tbody>
+        </table>
+    </div>
+
+</div>
+
+<button class="back-btn" onclick="goBack()">⬅ Back to Dashboard</button>
+
+<!-- FIREBASE -->
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+<script src="firebase.js"></script>
+
+<script>
+
+let editId = null;
+
+/* LOAD DATA */
+async function loadIncome() {
+
+    let table = document.getElementById("incomeTable");
+    let total = 0;
+
+    table.innerHTML = "";
+
+    let snapshot = await db.collection("income").get();
+
+    snapshot.forEach((doc) => {
+        let item = doc.data();
+
+        total += item.amount;
+
+        table.innerHTML += `
+            <tr>
+                <td>₹${item.amount}</td>
+                <td>${item.category}</td>
+                <td>${item.date}</td>
+                <td>${item.note || "-"}</td>
+                <td>
+                    <div class="action-wrapper">
+                        <button class="action-btn edit" onclick='editIncome("${doc.id}", ${JSON.stringify(item)})'>Edit</button>
+                        <button class="action-btn delete" onclick="deleteIncome('${doc.id}')">Del</button>
+                    </div>
+                </td>
+            </tr>
+        `;
+    });
+
+    document.getElementById("totalIncome").innerText = total;
+}
+
+/* ADD / UPDATE */
+async function addIncome() {
+
+    let amount = parseFloat(document.getElementById("amount").value);
+    let category = document.getElementById("category").value;
+    let date = document.getElementById("date").value;
+    let note = document.getElementById("note").value;
+
+    if (!amount || !date) {
+        alert("Enter amount and date");
+        return;
+    }
+
+    let newIncome = { amount, category, date, note };
+
+    try {
+
+        if (editId === null) {
+            await db.collection("income").add(newIncome);
+        } else {
+            await db.collection("income").doc(editId).update(newIncome);
+            editId = null;
+            document.getElementById("mainBtn").innerText = "Add Income";
+        }
+
+        clearForm();
+        loadIncome();
+
+    } catch (error) {
+        console.error("Error:", error);
+    }
+}
+
+/* EDIT */
+function editIncome(id, item) {
+
+    document.getElementById("amount").value = item.amount;
+    document.getElementById("category").value = item.category;
+    document.getElementById("date").value = item.date;
+    document.getElementById("note").value = item.note;
+
+    editId = id;
+
+    document.getElementById("mainBtn").innerText = "Update Income";
+}
+
+/* DELETE */
+async function deleteIncome(id) {
+
+    try {
+        await db.collection("income").doc(id).delete();
+        loadIncome();
+    } catch (error) {
+        console.error("Error deleting:", error);
+    }
+}
+
+/* CLEAR FORM */
+function clearForm() {
+    document.getElementById("amount").value = "";
+    document.getElementById("date").value = "";
+    document.getElementById("note").value = "";
+}
+
+/* NAVIGATION */
+function goBack() {
+    window.location.href = "dashboard.html";
+}
+
+/* INIT */
+loadIncome();
+
+</script>
+
+</body>
+</html>
