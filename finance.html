@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Finance</title>
+
+<style>
+body {
+    margin: 0;
+    font-family: Arial;
+    background: #0f172a;
+    color: white;
+}
+
+/* HEADER */
+.header {
+    padding: 20px;
+    text-align: center;
+    background: #1e293b;
+    font-size: 22px;
+}
+
+/* CARDS */
+.container {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    flex-wrap: wrap;
+    margin-top: 20px;
+}
+
+.card {
+    background: #1e293b;
+    padding: 15px;
+    border-radius: 12px;
+    width: 120px;
+    text-align: center;
+}
+
+.value {
+    margin-top: 8px;
+    font-size: 18px;
+}
+
+/* BUTTONS */
+.btn {
+    display: block;
+    width: 85%;
+    max-width: 320px;
+    margin: 12px auto;
+    padding: 14px;
+    font-size: 15px;
+    background: #22c55e;
+    border: none;
+    border-radius: 10px;
+    color: white;
+    cursor: pointer;
+}
+
+.btn:hover {
+    background: #16a34a;
+}
+
+/* DASHBOARD BUTTON */
+.dashboard-btn {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    background: #334155;
+    border: none;
+    padding: 12px 16px;
+    border-radius: 50px;
+    color: white;
+    cursor: pointer;
+}
+
+.dashboard-btn:hover {
+    background: #475569;
+}
+</style>
+</head>
+
+<body>
+
+<div class="header">Finance</div>
+
+<!-- CARDS -->
+<div class="container">
+    <div class="card">
+        <div>Income</div>
+        <div class="value" id="income">₹0</div>
+    </div>
+
+    <div class="card">
+        <div>Expense</div>
+        <div class="value" id="expense">₹0</div>
+    </div>
+
+    <div class="card">
+        <div>Savings</div>
+        <div class="value" id="savings">₹0</div>
+    </div>
+</div>
+
+<!-- BUTTONS -->
+<button class="btn" onclick="goIncome()">+ Add Income</button>
+<button class="btn" onclick="goExpense()">+ Add Expense</button>
+
+<button class="dashboard-btn" onclick="goDashboard()">🏠 Dashboard</button>
+
+<!-- 🔥 Firebase -->
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+<script src="firebase.js"></script>
+
+<script>
+async function loadFinance() {
+
+    let totalIncome = 0;
+    let totalExpense = 0;
+
+    let incomeSnap = await db.collection("income").get();
+    incomeSnap.forEach(doc => {
+        totalIncome += doc.data().amount || 0;
+    });
+
+    let expenseSnap = await db.collection("expense").get();
+    expenseSnap.forEach(doc => {
+        totalExpense += doc.data().amount || 0;
+    });
+
+    let savings = totalIncome - totalExpense;
+
+    document.getElementById("income").innerText = "₹" + totalIncome;
+    document.getElementById("expense").innerText = "₹" + totalExpense;
+    document.getElementById("savings").innerText = "₹" + savings;
+}
+
+/* NAVIGATION */
+function goIncome() {
+    window.location.href = "income.html";
+}
+
+function goExpense() {
+    window.location.href = "expense.html";
+}
+
+function goDashboard() {
+    window.location.href = "dashboard.html";
+}
+
+loadFinance();
+</script>
+
+</body>
+</html>
