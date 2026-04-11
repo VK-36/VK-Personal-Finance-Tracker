@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Asset Form - VKIC</title>
+
+<style>
+body {
+    margin: 0;
+    font-family: Arial;
+    background: #0f172a;
+    color: white;
+}
+
+.container {
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+}
+
+h2 {
+    margin-bottom: 10px;
+}
+
+.info {
+    color: #94a3b8;
+    margin-bottom: 15px;
+}
+
+input {
+    padding: 10px;
+    margin: 6px;
+    width: 240px;
+    border-radius: 6px;
+    border: none;
+}
+
+button {
+    padding: 10px 20px;
+    background: #22c55e;
+    border: none;
+    color: white;
+    border-radius: 8px;
+    cursor: pointer;
+    margin-top: 10px;
+}
+
+button:hover {
+    background: #16a34a;
+}
+
+.back {
+    margin-top: 15px;
+    color: #94a3b8;
+    cursor: pointer;
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+    <h2 id="title">Add Asset</h2>
+
+    <div class="info" id="infoBox"></div>
+
+    <input type="text" id="name" placeholder="Asset Name">
+    <input type="number" id="buy" placeholder="Buy Price">
+    <input type="number" id="units" placeholder="Units">
+    <input type="number" id="current" placeholder="Current Price">
+
+    <button onclick="saveAsset()">Save Asset</button>
+
+    <div class="back" onclick="goBack()">← Back</div>
+
+</div>
+
+<!-- 🔥 FIREBASE -->
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+<script src="firebase.js"></script>
+
+<script>
+
+/* FLOW DATA */
+let type = localStorage.getItem("vkic_type");
+let subtype = localStorage.getItem("vkic_subtype");
+
+/* EDIT MODE */
+let editId = localStorage.getItem("edit_asset_id");
+
+/* UI SETUP */
+if (editId) {
+    document.getElementById("title").innerText = "Edit Asset";
+}
+
+/* INFO TEXT */
+document.getElementById("infoBox").innerText =
+    `Type: ${type || "-"} | Subtype: ${subtype || "-"}`;
+
+/* LOAD DATA FOR EDIT */
+async function loadAsset() {
+
+    if (!editId) return;
+
+    try {
+        let doc = await db.collection("assets").doc(editId).get();
+
+        if (doc.exists) {
+            let asset = doc.data();
+
+            document.getElementById("name").value = asset.name;
+            document.getElementById("buy").value = asset.buy;
+            document.getElementById("units").value = asset.units;
+            document.getElementById("current").value = asset.current;
+
+            document.getElementById("infoBox").innerText =
+                `Editing: ${asset.type} | ${asset.subtype}`;
+        }
+
+    } catch (error) {
+        console.error("Load error:", error);
+    }
+}
+
+/* SAVE / UPDATE */
+async function saveAsset() {
+
+    let name = document.getElementById("name").value;
+    let buy = parseFloat(document.getElementById("buy").value);
+    let units = parseFloat(document.getElementById("units").value);
+    let current = parseFloat(document.getElementById("current").value);
+
+    if (!name || !buy || !units || !current) {
+        alert("Fill all fields");
+        return;
+    }
+
+    let invested = buy * units;
+    let currentValue = current * units;
+    let profit = currentValue - invested;
+    let returnPercent = ((profit / invested) * 100).toFixed(2);
+
+    let asset = {
+        type,
+        subtype,
+        name,
+        buy,
+        units,
+        current,
+        invested,
+        currentValue,
+        profit,
+        returnPercent,
+        updatedAt: new Date()
+    };
+
+    try {
+
+        if (editId) {
+            /* UPDATE */
+            await db.collection("assets").doc(editId).update(asset);
+            alert("Asset Updated ✅");
+
+            localStorage.removeItem("edit_asset_id");
+
+        } else {
+            /* ADD */
+            asset.createdAt = new Date();
+            await db.collection("assets").add(asset);
+            alert("Asset Added ✅");
+        }
+
+        /* CLEAN FLOW */
+        localStorage.removeItem("vkic_type");
+        localStorage.removeItem("vkic_subtype");
+
+        window.location.href = "dashboard.html";
+
+    } catch (error) {
+        console.error("Save error:", error);
+    }
+}
+
+/* BACK */
+function goBack() {
+    window.location.href = "asset-subtype.html";
+}
+
+/* INIT */
+loadAsset();
+
+</script>
+
+</body>
+</html>
