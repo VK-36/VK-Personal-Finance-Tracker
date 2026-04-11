@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Asset Type - VKIC</title>
+
+<style>
+body {
+    margin: 0;
+    font-family: Arial;
+    background: #0f172a;
+    color: white;
+}
+
+/* CENTER */
+.container {
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+}
+
+/* TITLE */
+h2 {
+    margin-bottom: 20px;
+}
+
+/* BUTTONS */
+button {
+    padding: 12px 18px;
+    margin: 8px;
+    width: 220px;
+    border: none;
+    border-radius: 8px;
+    background: #334155;
+    color: white;
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+button:hover {
+    background: #475569;
+}
+
+/* BACK */
+.back {
+    margin-top: 20px;
+    color: #94a3b8;
+    cursor: pointer;
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+    <h2>Select Asset Type</h2>
+
+    <button onclick="selectType('Equity')">Equity</button>
+    <button onclick="selectType('Debt')">Debt</button>
+    <button onclick="selectType('Commodity')">Commodity</button>
+    <button onclick="selectType('Real Estate')">Real Estate</button>
+
+    <div class="back" onclick="goBack()">
+        ← Back to Add Asset
+    </div>
+
+</div>
+
+<script>
+
+// SAVE TYPE & MOVE FORWARD
+function selectType(type) {
+    localStorage.setItem("vkic_type", type);
+    window.location.href = "asset-subtype.html";
+}
+
+// BACK
+function goBack() {
+    window.location.href = "asset.html";
+}
+
+</script>
+
+</body>
+</html>
