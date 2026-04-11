@@ -1,9 +1,10 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Income - VKIC</title>
+<title>Expense - VKIC</title>
 
 <style>
 body {
@@ -46,7 +47,7 @@ input, select {
     width: 100%;
     padding: 12px;
     margin-top: 15px;
-    background: #22c55e;
+    background: #ef4444;
     border: none;
     color: white;
     border-radius: 8px;
@@ -54,7 +55,7 @@ input, select {
 }
 
 .btn:hover {
-    background: #16a34a;
+    background: #dc2626;
 }
 
 table {
@@ -113,13 +114,13 @@ th {
 
 <body>
 
-<div class="header">Income Tracker</div>
+<div class="header">Expense Tracker</div>
 
 <div class="container">
 
     <!-- TOTAL -->
     <div class="card">
-        <h3>Total Income: ₹<span id="totalIncome">0</span></h3>
+        <h3>Total Expense: ₹<span id="totalExpense">0</span></h3>
     </div>
 
     <!-- FORM -->
@@ -127,17 +128,18 @@ th {
         <input type="number" id="amount" placeholder="Amount (₹)">
         
         <select id="category">
-            <option>Salary</option>
-            <option>Freelance</option>
-            <option>Business</option>
-            <option>Gift</option>
+            <option>Food</option>
+            <option>Travel</option>
+            <option>Shopping</option>
+            <option>Bills</option>
+            <option>Entertainment</option>
             <option>Other</option>
         </select>
 
         <input type="date" id="date">
         <input type="text" id="note" placeholder="Note (optional)">
 
-        <button class="btn" onclick="addIncome()" id="mainBtn">Add Income</button>
+        <button class="btn" onclick="addExpense()" id="mainBtn">Add Expense</button>
     </div>
 
     <!-- TABLE -->
@@ -152,7 +154,7 @@ th {
                     <th>Action</th>
                 </tr>
             </thead>
-            <tbody id="incomeTable"></tbody>
+            <tbody id="expenseTable"></tbody>
         </table>
     </div>
 
@@ -169,15 +171,15 @@ th {
 
 let editId = null;
 
-/* LOAD DATA */
-async function loadIncome() {
+/* LOAD */
+async function loadExpense() {
 
-    let table = document.getElementById("incomeTable");
+    let table = document.getElementById("expenseTable");
     let total = 0;
 
     table.innerHTML = "";
 
-    let snapshot = await db.collection("income").get();
+    let snapshot = await db.collection("expense").get();
 
     snapshot.forEach((doc) => {
         let item = doc.data();
@@ -192,19 +194,19 @@ async function loadIncome() {
                 <td>${item.note || "-"}</td>
                 <td>
                     <div class="action-wrapper">
-                        <button class="action-btn edit" onclick='editIncome("${doc.id}", ${JSON.stringify(item)})'>Edit</button>
-                        <button class="action-btn delete" onclick="deleteIncome('${doc.id}')">Del</button>
+                        <button class="action-btn edit" onclick='editExpense("${doc.id}", ${JSON.stringify(item)})'>Edit</button>
+                        <button class="action-btn delete" onclick="deleteExpense('${doc.id}')">Del</button>
                     </div>
                 </td>
             </tr>
         `;
     });
 
-    document.getElementById("totalIncome").innerText = total;
+    document.getElementById("totalExpense").innerText = total;
 }
 
 /* ADD / UPDATE */
-async function addIncome() {
+async function addExpense() {
 
     let amount = parseFloat(document.getElementById("amount").value);
     let category = document.getElementById("category").value;
@@ -216,20 +218,20 @@ async function addIncome() {
         return;
     }
 
-    let newIncome = { amount, category, date, note };
+    let newExpense = { amount, category, date, note };
 
     try {
 
         if (editId === null) {
-            await db.collection("income").add(newIncome);
+            await db.collection("expense").add(newExpense);
         } else {
-            await db.collection("income").doc(editId).update(newIncome);
+            await db.collection("expense").doc(editId).update(newExpense);
             editId = null;
-            document.getElementById("mainBtn").innerText = "Add Income";
+            document.getElementById("mainBtn").innerText = "Add Expense";
         }
 
         clearForm();
-        loadIncome();
+        loadExpense();
 
     } catch (error) {
         console.error("Error:", error);
@@ -237,7 +239,7 @@ async function addIncome() {
 }
 
 /* EDIT */
-function editIncome(id, item) {
+function editExpense(id, item) {
 
     document.getElementById("amount").value = item.amount;
     document.getElementById("category").value = item.category;
@@ -246,34 +248,34 @@ function editIncome(id, item) {
 
     editId = id;
 
-    document.getElementById("mainBtn").innerText = "Update Income";
+    document.getElementById("mainBtn").innerText = "Update Expense";
 }
 
 /* DELETE */
-async function deleteIncome(id) {
+async function deleteExpense(id) {
 
     try {
-        await db.collection("income").doc(id).delete();
-        loadIncome();
+        await db.collection("expense").doc(id).delete();
+        loadExpense();
     } catch (error) {
         console.error("Error deleting:", error);
     }
 }
 
-/* CLEAR FORM */
+/* CLEAR */
 function clearForm() {
     document.getElementById("amount").value = "";
     document.getElementById("date").value = "";
     document.getElementById("note").value = "";
 }
 
-/* NAVIGATION */
+/* NAV */
 function goBack() {
     window.location.href = "finance.html";
 }
 
 /* INIT */
-loadIncome();
+loadExpense();
 
 </script>
 
