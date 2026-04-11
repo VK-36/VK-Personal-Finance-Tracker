@@ -181,23 +181,33 @@ async function sellAsset(id) {
 
     if (!confirm("Sell this asset?")) return;
 
-    let docRef = db.collection("assets").doc(id);
-    let docSnap = await docRef.get();
+    try {
+        let docRef = db.collection("assets").doc(id);
+        let docSnap = await docRef.get();
 
-    if (docSnap.exists) {
+        if (!docSnap.exists) return;
 
-        let data = docSnap.data();
+        let a = docSnap.data();
 
-        // Add sell date
-        data.soldDate = new Date().toISOString().split("T")[0];
+        /* 🔥 ADD TO HISTORY (SELL) */
+        await db.collection("history").add({
+            type: "sell",
+            category: "asset",
+            name: a.name,
+            amount: a.currentValue,
+            units: a.units,
+            date: new Date().toISOString().split("T")[0]
+        });
 
-        // Save to sell_history
-        await db.collection("sell_history").add(data);
-
-        // Delete from assets
+        /* DELETE FROM ASSETS */
         await docRef.delete();
 
+        alert("Asset Sold ✅");
+
         loadAssets();
+
+    } catch (error) {
+        console.error("Sell error:", error);
     }
 }
 /* NAVIGATION */
