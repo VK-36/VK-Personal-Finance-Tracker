@@ -22,7 +22,7 @@ body {
     position: relative;
 }
 
-/* ADD BUTTON (TOP RIGHT) */
+/* ADD BUTTON */
 .add-btn {
     position: absolute;
     right: 20px;
@@ -61,7 +61,20 @@ th {
     color: #94a3b8;
 }
 
-/* DASHBOARD BUTTON (BOTTOM RIGHT) */
+/* ACTION BUTTONS */
+button {
+    padding: 6px 10px;
+    margin: 2px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+}
+
+button:hover {
+    opacity: 0.8;
+}
+
+/* DASHBOARD BUTTON */
 .dashboard-btn {
     position: fixed;
     bottom: 20px;
@@ -97,13 +110,14 @@ th {
 <th>Invested</th>
 <th>Current</th>
 <th>Date</th>
+<th>Action</th>
 </tr>
 </thead>
 <tbody id="assetTable"></tbody>
 </table>
 </div>
 
-<button class="dashboard-btn" onclick="goDashboard()">🏠 Dashboard</button>
+<button class="dashboard-btn" onclick="goDashboard()">🏠</button>
 
 <!-- 🔥 Firebase -->
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
@@ -130,9 +144,27 @@ async function loadAssets() {
             <td>₹${a.invested || 0}</td>
             <td>₹${a.currentValue || 0}</td>
             <td>${a.date || "-"}</td>
+            <td>
+                <button onclick="editAsset('${doc.id}')">✏️</button>
+                <button onclick="sellAsset('${doc.id}')">💰</button>
+            </td>
         </tr>
         `;
     });
+}
+
+/* EDIT */
+function editAsset(id) {
+    localStorage.setItem("edit_asset_id", id);
+    window.location.href = "add-asset.html";
+}
+
+/* SELL */
+async function sellAsset(id) {
+    if (confirm("Sell this asset?")) {
+        await db.collection("assets").doc(id).delete();
+        loadAssets();
+    }
 }
 
 /* NAVIGATION */
