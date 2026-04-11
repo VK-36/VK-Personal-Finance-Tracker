@@ -71,6 +71,7 @@ button:hover {
     <input type="number" id="buy" placeholder="Buy Price">
     <input type="number" id="units" placeholder="Units">
     <input type="number" id="current" placeholder="Current Price">
+    <input type="date" id="date">
 
     <button onclick="saveAsset()">Save Asset</button>
 
@@ -78,7 +79,7 @@ button:hover {
 
 </div>
 
-<!-- 🔥 FIREBASE -->
+<!-- 🔥 Firebase -->
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
 <script src="firebase.js"></script>
@@ -101,7 +102,7 @@ if (editId) {
 document.getElementById("infoBox").innerText =
     `Type: ${type || "-"} | Subtype: ${subtype || "-"}`;
 
-/* LOAD DATA FOR EDIT */
+/* LOAD EXISTING DATA */
 async function loadAsset() {
 
     if (!editId) return;
@@ -110,15 +111,16 @@ async function loadAsset() {
         let doc = await db.collection("assets").doc(editId).get();
 
         if (doc.exists) {
-            let asset = doc.data();
+            let a = doc.data();
 
-            document.getElementById("name").value = asset.name;
-            document.getElementById("buy").value = asset.buy;
-            document.getElementById("units").value = asset.units;
-            document.getElementById("current").value = asset.current;
+            document.getElementById("name").value = a.name || "";
+            document.getElementById("buy").value = a.buy || "";
+            document.getElementById("units").value = a.units || "";
+            document.getElementById("current").value = a.current || "";
+            document.getElementById("date").value = a.date || "";
 
             document.getElementById("infoBox").innerText =
-                `Editing: ${asset.type} | ${asset.subtype}`;
+                `Editing: ${a.type} | ${a.subtype}`;
         }
 
     } catch (error) {
@@ -133,9 +135,10 @@ async function saveAsset() {
     let buy = parseFloat(document.getElementById("buy").value);
     let units = parseFloat(document.getElementById("units").value);
     let current = parseFloat(document.getElementById("current").value);
+    let date = document.getElementById("date").value;
 
-    if (!name || !buy || !units || !current) {
-        alert("Fill all fields");
+    if (!name || !buy || !units || !current || !date) {
+        alert("Please fill all fields");
         return;
     }
 
@@ -155,12 +158,14 @@ async function saveAsset() {
         currentValue,
         profit,
         returnPercent,
+        date,
         updatedAt: new Date()
     };
 
     try {
 
         if (editId) {
+
             /* UPDATE */
             await db.collection("assets").doc(editId).update(asset);
             alert("Asset Updated ✅");
@@ -168,17 +173,30 @@ async function saveAsset() {
             localStorage.removeItem("edit_asset_id");
 
         } else {
+
             /* ADD */
             asset.createdAt = new Date();
+
             await db.collection("assets").add(asset);
+
+            /* 🔥 ADD TO HISTORY (BUY) */
+            await db.collection("history").add({
+                type: "buy",
+                category: "asset",
+                name: name,
+                amount: invested,
+                units: units,
+                date: date
+            });
+
             alert("Asset Added ✅");
         }
 
-        /* CLEAN FLOW */
+        /* CLEAN STORAGE */
         localStorage.removeItem("vkic_type");
         localStorage.removeItem("vkic_subtype");
 
-        window.location.href = "dashboard.html";
+        window.location.href = "assets.html";
 
     } catch (error) {
         console.error("Save error:", error);
