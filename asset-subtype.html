@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Asset Subtype - VKIC</title>
+
+<style>
+body {
+    margin: 0;
+    font-family: Arial;
+    background: #0f172a;
+    color: white;
+}
+
+/* CENTER */
+.container {
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+}
+
+/* TITLE */
+h2 {
+    margin-bottom: 10px;
+}
+
+.subtext {
+    color: #94a3b8;
+    margin-bottom: 20px;
+}
+
+/* BUTTONS */
+button {
+    padding: 12px 18px;
+    margin: 6px;
+    width: 260px;
+    border: none;
+    border-radius: 8px;
+    background: #334155;
+    color: white;
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+button:hover {
+    background: #475569;
+}
+
+/* BACK */
+.back {
+    margin-top: 20px;
+    color: #94a3b8;
+    cursor: pointer;
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+    <h2 id="title">Select Subtype</h2>
+    <div class="subtext" id="subtitle"></div>
+
+    <div id="options"></div>
+
+    <div class="back" onclick="goBack()">
+        ← Back
+    </div>
+
+</div>
+
+<script>
+
+let type = localStorage.getItem("vkic_type");
+
+document.getElementById("subtitle").innerText = "Category: " + type;
+
+let optionsDiv = document.getElementById("options");
+
+let data = {
+    Equity: [
+        "Indian Direct Equity",
+        "Overseas Equity",
+        "ETFs",
+        "Equity Mutual Funds",
+        "Hybrid Mutual Funds"
+    ],
+
+    Debt: [
+        "FD / RD / MIS",
+        "NSC / Government Schemes",
+        "Debt Mutual Funds"
+    ],
+
+    Commodity: [
+        "Gold (Physical / ETF / SGB / Digital)",
+        "Silver (Physical / ETF)",
+    ],
+
+    "Real Estate": [
+        "Residential Property",
+        "Commercial Property",
+        "REITs"
+    ],
+
+};
+
+function loadOptions() {
+
+    let list = data[type] || [];
+
+    list.forEach(item => {
+        let btn = document.createElement("button");
+        btn.innerText = item;
+
+        btn.onclick = () => {
+            localStorage.setItem("vkic_subtype", item);
+            window.location.href = "asset-form.html";
+        };
+
+        optionsDiv.appendChild(btn);
+    });
+}
+
+function goBack() {
+    window.location.href = "asset-type.html";
+}
+
+loadOptions();
+
+</script>
+
+</body>
+</html>
