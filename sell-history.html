@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sell History</title>
+
+<style>
+body {
+    margin: 0;
+    font-family: Arial;
+    background: #0f172a;
+    color: white;
+}
+
+/* HEADER */
+.header {
+    padding: 20px;
+    text-align: center;
+    background: #1e293b;
+    font-size: 22px;
+}
+
+/* TABLE */
+.table-container {
+    width: 95%;
+    margin: 20px auto;
+    overflow-x: auto;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+th, td {
+    padding: 12px;
+    text-align: center;
+    border-bottom: 1px solid #334155;
+}
+
+th {
+    color: #94a3b8;
+}
+
+/* DASHBOARD BUTTON */
+.dashboard-btn {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    background: #334155;
+    border: none;
+    padding: 12px 16px;
+    border-radius: 50px;
+    color: white;
+    cursor: pointer;
+}
+</style>
+</head>
+
+<body>
+
+<div class="header">Sell History</div>
+
+<div class="table-container">
+<table>
+<thead>
+<tr>
+<th>Asset</th>
+<th>Type</th>
+<th>Units</th>
+<th>Invested</th>
+<th>Sold Value</th>
+<th>Buy Date</th>
+<th>Sold Date</th>
+</tr>
+</thead>
+<tbody id="historyTable"></tbody>
+</table>
+</div>
+
+<button class="dashboard-btn" onclick="goDashboard()">🏠</button>
+
+<!-- 🔥 Firebase -->
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+<script src="firebase.js"></script>
+
+<script>
+async function loadHistory() {
+
+    let table = document.getElementById("historyTable");
+    table.innerHTML = "";
+
+    let snap = await db.collection("sell_history").get();
+
+    snap.forEach(doc => {
+        let a = doc.data();
+
+        table.innerHTML += `
+        <tr>
+            <td>${a.name || "-"}</td>
+            <td>${a.type || "-"}</td>
+            <td>${a.units || "-"}</td>
+            <td>₹${a.invested || 0}</td>
+            <td>₹${a.currentValue || 0}</td>
+            <td>${a.date || "-"}</td>
+            <td>${a.soldDate || "-"}</td>
+        </tr>
+        `;
+    });
+}
+
+function goDashboard() {
+    window.location.href = "dashboard.html";
+}
+
+loadHistory();
+</script>
+
+</body>
+</html>
