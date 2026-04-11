@@ -161,12 +161,28 @@ function editAsset(id) {
 
 /* SELL */
 async function sellAsset(id) {
-    if (confirm("Sell this asset?")) {
-        await db.collection("assets").doc(id).delete();
+
+    if (!confirm("Sell this asset?")) return;
+
+    let docRef = db.collection("assets").doc(id);
+    let docSnap = await docRef.get();
+
+    if (docSnap.exists) {
+
+        let data = docSnap.data();
+
+        // Add sell date
+        data.soldDate = new Date().toISOString().split("T")[0];
+
+        // Save to sell_history
+        await db.collection("sell_history").add(data);
+
+        // Delete from assets
+        await docRef.delete();
+
         loadAssets();
     }
 }
-
 /* NAVIGATION */
 function goToAdd() {
     window.location.href = "add-asset.html";
