@@ -30,11 +30,12 @@ input {
 
 button {
     padding: 10px 20px;
-    background: #eab308;
+    background: #22c55e;
     border: none;
-    color: black;
+    color: white;
     border-radius: 8px;
     cursor: pointer;
+    margin-top: 10px;
 }
 
 button:hover {
@@ -54,8 +55,10 @@ button:hover {
 
 <div class="container">
 
-    <h2>Add Gold/Silver</h2>
+    <h2>Add Physical Gold/Silver</h2>
 
+    <div class="info" id="infoBox"></div>
+    
     <input type="number" id="buy" placeholder="Buy Price per gram">
     <input type="number" id="grams" placeholder="Quantity (grams)">
     <input type="number" id="current" placeholder="Current Price per gram">
@@ -110,6 +113,12 @@ async function saveAsset() {
         date,
         createdAt: new Date()
     };
+
+    let editId = localStorage.getItem("edit_asset_id");
+
+    document.getElementById("infoBox").innerText =
+    `Type: ${type || "-"} | Subtype: ${subtype || "-"}`;
+
 
     await db.collection("assets").add(asset);
 
