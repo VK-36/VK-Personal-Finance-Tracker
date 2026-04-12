@@ -87,8 +87,8 @@ button:hover {
 <script>
 
 /* FIXED TYPE */
-let type = "Commodity";
-let subtype = localStorage.getItem("vkic_subtype") || "Gold (Physical)";
+let type = "commodity";
+let subtype = "gold/silver";
 
 /* EDIT MODE */
 let editId = localStorage.getItem("edit_asset_id");
@@ -100,7 +100,7 @@ if (editId) {
 
 /* INFO TEXT */
 document.getElementById("infoBox").innerText =
-    `Type: ${type} | Sub Type: ${Subtype}`;
+    `Type: ${type} | Subtype: ${subtype}`;
 
 /* LOAD EXISTING DATA */
 async function loadAsset() {
@@ -120,7 +120,7 @@ async function loadAsset() {
             document.getElementById("date").value = a.date || "";
 
             document.getElementById("infoBox").innerText =
-                `Editing: ${a.Type} | ${a.Sub Type}`;
+                `Editing: ${a.type} | ${a.subtype}`;
         }
 
     } catch (error) {
@@ -149,7 +149,7 @@ async function saveAsset() {
 
     let asset = {
         type,
-        subtype: cleanSubtype,
+        subtype,
         name,
         buy,
         grams,
