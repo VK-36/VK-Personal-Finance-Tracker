@@ -143,30 +143,33 @@ button:hover {
 
 <script>
 
-async function loadAssets() {
+function loadAssetsRealtime() {
 
     let table = document.getElementById("assetTable");
-    table.innerHTML = "";
 
-    let snap = await db.collection("assets").get();
+    db.collection("assets").onSnapshot(snapshot => {
 
-    snap.forEach(doc => {
-        let a = doc.data();
+        table.innerHTML = "";
 
-        table.innerHTML += `
-        <tr>
-            <td>${a.name || "-"}</td>
-            <td>${a.type || "-"}</td>
-            <td>${a.units || "-"}</td>
-            <td>₹${a.invested || 0}</td>
-            <td>₹${a.currentValue || 0}</td>
-            <td>${a.date || "-"}</td>
-            <td>
-                <button onclick="editAsset('${doc.id}')">✏️</button>
-                <button onclick="sellAsset('${doc.id}')">💰</button>
-            </td>
-        </tr>
-        `;
+        snapshot.forEach(doc => {
+            let a = doc.data();
+
+            table.innerHTML += `
+            <tr>
+                <td>${a.name || "-"}</td>
+                <td>${a.type || "-"}</td>
+                <td>${a.units || "-"}</td>
+                <td>₹${a.invested || 0}</td>
+                <td>₹${a.currentValue || 0}</td>
+                <td>${a.date || "-"}</td>
+                <td>
+                    <button onclick="editAsset('${doc.id}')">✏️</button>
+                    <button onclick="sellAsset('${doc.id}')">💰</button>
+                </td>
+            </tr>
+            `;
+        });
+
     });
 }
 
@@ -204,8 +207,6 @@ async function sellAsset(id) {
 
         alert("Asset Sold ✅");
 
-        loadAssets();
-
     } catch (error) {
         console.error("Sell error:", error);
     }
@@ -219,8 +220,8 @@ function goDashboard() {
     window.location.href = "dashboard.html";
 }
 
-loadAssets();
-
+ loadAssetsRealtime();
+    
 function goHistory() {
     window.location.href = "history.html";
 }
