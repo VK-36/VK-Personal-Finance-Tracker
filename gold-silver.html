@@ -40,6 +40,13 @@ button {
 button:hover {
     background: #ca8a04;
 }
+
+.back {
+    margin-top: 20px;
+    color: #94a3b8;
+    cursor: pointer;
+}
+
 </style>
 </head>
 
@@ -104,6 +111,10 @@ async function saveAsset() {
 
     alert("Saved ✅");
     window.location.href = "assets.html";
+}
+
+function goBack() {
+    window.location.href = "add-subtype.html";
 }
 
 </script>
