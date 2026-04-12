@@ -115,28 +115,41 @@ body {
 <script src="firebase.js"></script>
 
 <script>
-async function loadFinance() {
+function loadFinanceRealtime() {
 
     let totalIncome = 0;
     let totalExpense = 0;
 
-    let incomeSnap = await db.collection("income").get();
-    incomeSnap.forEach(doc => {
-        totalIncome += doc.data().amount || 0;
+    // 🔥 Income realtime
+    db.collection("income").onSnapshot(snapshot => {
+        totalIncome = 0;
+
+        snapshot.forEach(doc => {
+            totalIncome += doc.data().amount || 0;
+        });
+
+        updateUI();
     });
 
-    let expenseSnap = await db.collection("expense").get();
-    expenseSnap.forEach(doc => {
-        totalExpense += doc.data().amount || 0;
+    // 🔥 Expense realtime
+    db.collection("expense").onSnapshot(snapshot => {
+        totalExpense = 0;
+
+        snapshot.forEach(doc => {
+            totalExpense += doc.data().amount || 0;
+        });
+
+        updateUI();
     });
 
-    let savings = totalIncome - totalExpense;
+    function updateUI() {
+        let savings = totalIncome - totalExpense;
 
-    document.getElementById("income").innerText = "₹" + totalIncome;
-    document.getElementById("expense").innerText = "₹" + totalExpense;
-    document.getElementById("savings").innerText = "₹" + savings;
+        document.getElementById("income").innerText = "₹" + totalIncome;
+        document.getElementById("expense").innerText = "₹" + totalExpense;
+        document.getElementById("savings").innerText = "₹" + savings;
+    }
 }
-
 /* NAVIGATION */
 function goIncome() {
     window.location.href = "income.html";
@@ -150,7 +163,7 @@ function goDashboard() {
     window.location.href = "dashboard.html";
 }
 
-loadFinance();
+loadFinanceRealtime();
 </script>
 
 </body>
