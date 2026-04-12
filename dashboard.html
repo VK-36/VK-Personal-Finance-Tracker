@@ -65,16 +65,29 @@ body {
 <div class="header">VKIC Dashboard</div>
 
 <div class="container">
-    <div class="card"><div>Invested</div><div class="value" id="invested">₹0</div></div>
-    <div class="card"><div>Value</div><div class="value" id="value">₹0</div></div>
-    <div class="card"><div>Profit</div><div class="value" id="profit">₹0</div></div>
 
-    <div class="card"><div>Income</div><div class="value" id="income">₹0</div></div>
-    <div class="card"><div>Expense</div><div class="value" id="expense">₹0</div></div>
-    <div class="card"><div>Savings</div><div class="value" id="savings">₹0</div></div>
+    <!-- Row 1 -->
+    <div class="row">
+        <div class="card"><div>Invested</div><div class="value" id="invested">₹0</div></div>
+        <div class="card"><div>Value</div><div class="value" id="value">₹0</div></div>
+        <div class="card"><div>Profit</div><div class="value" id="profit">₹0</div></div>
+    </div>
 
-    <div class="card"><div>Cash</div><div class="value" id="cash">₹0</div></div>
-    <div class="card"><div>Net Worth</div><div class="value" id="netWorth">₹0</div></div>
+    <!-- Row 2 -->
+    <div class="row">
+        <div class="card"><div>Income</div><div class="value" id="income">₹0</div></div>
+        <div class="card"><div>Expense</div><div class="value" id="expense">₹0</div></div>
+        <div class="card"><div>Savings</div><div class="value" id="savings">₹0</div></div>
+    </div>
+
+    <!-- Row 3 -->
+    <div class="row center">
+        <div class="card networth">
+            <div>Net Worth</div>
+            <div class="value" id="netWorth">₹0</div>
+        </div>
+    </div>
+
 </div>
 
 <button class="btn" onclick="goToAssets()">Assets Page</button>
