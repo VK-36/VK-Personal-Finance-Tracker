@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Goal Tracker - VKIC</title>
+
+<style>
+body {
+    margin: 0;
+    font-family: Arial;
+    background: #0f172a;
+    color: white;
+}
+
+.header {
+    padding: 20px;
+    text-align: center;
+    background: #1e293b;
+    font-size: 22px;
+}
+
+.home-btn {
+    position: fixed;
+    bottom: 20px;
+    left: 20px;
+    padding: 12px 18px;
+    background: #334155;
+    color: white;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    font-size: 14px;
+}
+
+.home-btn:hover {
+    background: #475569;
+}
+
+.container {
+    width: 90%;
+    max-width: 500px;
+    margin: 20px auto;
+}
+
+.card {
+    background: #1e293b;
+    padding: 20px;
+    border-radius: 12px;
+    margin-bottom: 20px;
+}
+
+input, select {
+    width: 100%;
+    padding: 10px;
+    margin-top: 10px;
+    border-radius: 8px;
+    border: none;
+}
+
+.btn {
+    width: 100%;
+    padding: 12px;
+    margin-top: 15px;
+    background: #22c55e;
+    border: none;
+    color: white;
+    border-radius: 8px;
+    cursor: pointer;
+}
+
+.small-btn {
+    margin-top: 10px;
+    padding: 8px;
+    width: 100%;
+    background: #3b82f6;
+    border: none;
+    color: white;
+    border-radius: 6px;
+    cursor: pointer;
+}
+
+.delete-btn {
+    background: #ef4444;
+}
+
+.progress-bar {
+    height: 10px;
+    background: #334155;
+    border-radius: 10px;
+    margin-top: 10px;
+    overflow: hidden;
+}
+
+.progress {
+    height: 100%;
+    background: #22c55e;
+}
+</style>
+</head>
+
+<body>
+
+<div class="header">Goal Tracker</div>
+
+<div class="container">
+
+    <!-- CREATE / EDIT GOAL -->
+    <div class="card">
+        <h3>Create / Edit Goal</h3>
+        <input type="text" id="goalName" placeholder="Goal Name (House)">
+        <input type="number" id="targetAmount" placeholder="Target Amount (₹)">
+        <input type="number" id="years" placeholder="Years (15)">
+        <button class="btn" onclick="createGoal()" id="mainBtn">Create Goal</button>
+    </div>
+
+    <!-- GOALS -->
+    <div id="goalsList"></div>
+
+</div>
+
+<button class="home-btn" onclick="goHome()">🏠</button>
+
+<!-- FIREBASE -->
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+<script src="firebase.js"></script>
+
+<script>
+
+let editGoalId = null;
+
+/* LOAD GOALS */
+async function loadGoals() {
+
+    let container = document.getElementById("goalsList");
+    container.innerHTML = "";
+
+    let goalsSnap = await db.collection("goals").get();
+    let assetsSnap = await db.collection("assets").get();
+
+    let assetsMap = {};
+    assetsSnap.forEach(doc => {
+        assetsMap[doc.id] = doc.data();
+    });
+
+    goalsSnap.forEach(doc => {
+
+        let g = doc.data();
+        let linked = g.linkedAssets || [];
+
+        // CALCULATE SAVED FROM LINKED ASSETS
+        let saved = 0;
+        linked.forEach(id => {
+            if (assetsMap[id]) {
+                saved += assetsMap[id].value;
+            }
+        });
+
+        let percent = g.target ? ((saved / g.target) * 100).toFixed(1) : 0;
+
+        container.innerHTML += `
+        <div class="card">
+
+            <h3>${g.name}</h3>
+            <p>Target: ₹${g.target}</p>
+            <p>Saved: ₹${saved}</p>
+            <p>Remaining: ₹${g.target - saved}</p>
+            <p>${percent}% complete</p>
+
+            <div class="progress-bar">
+                <div class="progress" style="width:${percent}%"></div>
+            </div>
+
+            <!-- LINK ASSET -->
+            <select id="asset-${doc.id}">
+                ${Object.keys(assetsMap).map(id => `
+                    <option value="${id}">
+                        ${assetsMap[id].name} (₹${assetsMap[id].value})
+                    </option>
+                `).join("")}
+            </select>
+
+            <button class="small-btn" onclick="linkAsset('${doc.id}')">Link Asset</button>
+
+            <!-- ACTIONS -->
+            <div style="display:flex; gap:6px;">
+                <button class="small-btn" onclick='editGoal("${doc.id}", ${JSON.stringify(g)})'>Edit</button>
+                <button class="small-btn delete-btn" onclick="deleteGoal('${doc.id}')">Delete</button>
+            </div>
+
+        </div>
+        `;
+    });
+}
+
+/* CREATE / UPDATE GOAL */
+async function createGoal() {
+
+    let name = document.getElementById("goalName").value;
+    let target = parseFloat(document.getElementById("targetAmount").value);
+    let years = parseInt(document.getElementById("years").value);
+
+    if (!name || isNaN(target) || isNaN(years)) {
+        alert("Fill all fields");
+        return;
+    }
+
+    if (editGoalId === null) {
+        await db.collection("goals").add({
+            name,
+            target,
+            years,
+            linkedAssets: []
+        });
+    } else {
+        await db.collection("goals").doc(editGoalId).update({
+            name,
+            target,
+            years
+        });
+        editGoalId = null;
+        document.getElementById("mainBtn").innerText = "Create Goal";
+    }
+
+    clearForm();
+    loadGoals();
+}
+
+/* EDIT */
+function editGoal(id, g) {
+
+    document.getElementById("goalName").value = g.name;
+    document.getElementById("targetAmount").value = g.target;
+    document.getElementById("years").value = g.years;
+
+    editGoalId = id;
+    document.getElementById("mainBtn").innerText = "Update Goal";
+}
+
+/* DELETE */
+async function deleteGoal(id) {
+    await db.collection("goals").doc(id).delete();
+    loadGoals();
+}
+
+/* LINK ASSET */
+async function linkAsset(goalId) {
+
+    let select = document.getElementById("asset-" + goalId);
+    let assetId = select.value;
+
+    let goalRef = db.collection("goals").doc(goalId);
+    let goal = (await goalRef.get()).data();
+
+    let linked = goal.linkedAssets || [];
+
+    if (!linked.includes(assetId)) {
+        linked.push(assetId);
+    }
+
+    await goalRef.update({ linkedAssets: linked });
+
+    loadGoals();
+}
+
+/* CLEAR FORM */
+function clearForm() {
+    document.getElementById("goalName").value = "";
+    document.getElementById("targetAmount").value = "";
+    document.getElementById("years").value = "";
+}
+
+/* INIT */
+loadGoals();
+
+function goHome() {
+    window.location.href = "dashboard.html";
+}
+
+</script>
+
+</body>
+</html>
