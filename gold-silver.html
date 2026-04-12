@@ -100,7 +100,7 @@ if (editId) {
 
 /* INFO TEXT */
 document.getElementById("infoBox").innerText =
-    `Type: ${type} | Subtype: ${subtype}`;
+    `Type: ${type || "-"} | Sub Type: ${subtype || "-"}`;
 
 /* LOAD EXISTING DATA */
 async function loadAsset() {
