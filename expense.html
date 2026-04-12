@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -172,37 +171,39 @@ th {
 let editId = null;
 
 /* LOAD */
-async function loadExpense() {
+function loadExpenseRealtime() {
 
     let table = document.getElementById("expenseTable");
-    let total = 0;
 
-    table.innerHTML = "";
+    db.collection("expense").onSnapshot(snapshot => {
 
-    let snapshot = await db.collection("expense").get();
+        let total = 0;
+        table.innerHTML = "";
 
-    snapshot.forEach((doc) => {
-        let item = doc.data();
+        snapshot.forEach((doc) => {
+            let item = doc.data();
 
-        total += item.amount;
+            total += Number(item.amount) || 0;
 
-        table.innerHTML += `
-            <tr>
-                <td>₹${item.amount}</td>
-                <td>${item.category}</td>
-                <td>${item.date}</td>
-                <td>${item.note || "-"}</td>
-                <td>
-                    <div class="action-wrapper">
-                        <button class="action-btn edit" onclick='editExpense("${doc.id}", ${JSON.stringify(item)})'>Edit</button>
-                        <button class="action-btn delete" onclick="deleteExpense('${doc.id}')">Del</button>
-                    </div>
-                </td>
-            </tr>
-        `;
+            table.innerHTML += `
+                <tr>
+                    <td>₹${item.amount}</td>
+                    <td>${item.category}</td>
+                    <td>${item.date}</td>
+                    <td>${item.note || "-"}</td>
+                    <td>
+                        <div class="action-wrapper">
+                            <button class="action-btn edit" onclick='editExpense("${doc.id}", ${JSON.stringify(item)})'>Edit</button>
+                            <button class="action-btn delete" onclick="deleteExpense('${doc.id}')">Del</button>
+                        </div>
+                    </td>
+                </tr>
+            `;
+        });
+
+        document.getElementById("totalExpense").innerText = total;
+
     });
-
-    document.getElementById("totalExpense").innerText = total;
 }
 
 /* ADD / UPDATE */
@@ -231,7 +232,6 @@ async function addExpense() {
         }
 
         clearForm();
-        loadExpense();
 
     } catch (error) {
         console.error("Error:", error);
@@ -256,7 +256,6 @@ async function deleteExpense(id) {
 
     try {
         await db.collection("expense").doc(id).delete();
-        loadExpense();
     } catch (error) {
         console.error("Error deleting:", error);
     }
@@ -275,7 +274,7 @@ function goBack() {
 }
 
 /* INIT */
-loadExpense();
+loadExpenseRealtime();
 
 </script>
 
