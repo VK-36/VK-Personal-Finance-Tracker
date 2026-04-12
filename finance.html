@@ -83,23 +83,6 @@ body {
 
 <body>
 
-<!-- TRANSACTION TABLE -->
-<div style="max-width: 800px; margin: 30px auto; padding: 10px;">
-    <h3 style="text-align:center;">Transactions</h3>
-
-    <table style="width:100%; border-collapse: collapse; margin-top: 10px;">
-        <thead>
-            <tr style="background:#1e293b;">
-                <th style="padding:10px;">Type</th>
-                <th style="padding:10px;">Amount</th>
-                <th style="padding:10px;">Date</th>
-            </tr>
-        </thead>
-        <tbody id="transactionTable">
-        </tbody>
-    </table>
-</div>
-
 <div class="header">Finance</div>
 
 <!-- CARDS -->
@@ -125,6 +108,23 @@ body {
 <button class="btn" onclick="goExpense()">+ Add Expense</button>
 
 <button class="dashboard-btn" onclick="goDashboard()">🏠</button>
+
+<!-- TRANSACTION TABLE -->
+<div style="max-width: 800px; margin: 30px auto; padding: 10px;">
+    <h3 style="text-align:center;">Transactions</h3>
+
+    <table style="width:100%; border-collapse: collapse; margin-top: 10px;">
+        <thead>
+            <tr style="background:#1e293b;">
+                <th style="padding:10px;">Type</th>
+                <th style="padding:10px;">Amount</th>
+                <th style="padding:10px;">Date</th>
+            </tr>
+        </thead>
+        <tbody id="transactionTable">
+        </tbody>
+    </table>
+</div>
 
 <!-- 🔥 Firebase -->
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
