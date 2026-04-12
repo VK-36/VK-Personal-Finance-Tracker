@@ -87,8 +87,8 @@ button:hover {
 <script>
 
 /* FIXED TYPE */
-let type = "commodity";
-let subtype = "gold/silver";
+let type = "Commodity";
+let subtype = localStorage.getItem("vkic_subtype") || "Gold (Physical)";
 
 /* EDIT MODE */
 let editId = localStorage.getItem("edit_asset_id");
@@ -100,7 +100,7 @@ if (editId) {
 
 /* INFO TEXT */
 document.getElementById("infoBox").innerText =
-    `Type: ${type || "-"} | Sub Type: ${subtype || "-"}`;
+    `Type: ${type} | Sub Type: ${cleanSubtype}`;
 
 /* LOAD EXISTING DATA */
 async function loadAsset() {
@@ -149,7 +149,7 @@ async function saveAsset() {
 
     let asset = {
         type,
-        subtype,
+        subtype: cleanSubtype,
         name,
         buy,
         grams,
