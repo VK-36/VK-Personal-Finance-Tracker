@@ -170,37 +170,39 @@ th {
 let editId = null;
 
 /* LOAD DATA */
-async function loadIncome() {
+function loadIncomeRealtime() {
 
     let table = document.getElementById("incomeTable");
-    let total = 0;
 
-    table.innerHTML = "";
+    db.collection("income").onSnapshot(snapshot => {
 
-    let snapshot = await db.collection("income").get();
+        let total = 0;
+        table.innerHTML = "";
 
-    snapshot.forEach((doc) => {
-        let item = doc.data();
+        snapshot.forEach((doc) => {
+            let item = doc.data();
 
-        total += item.amount;
+           total += Number(item.amount) || 0;
 
-        table.innerHTML += `
-            <tr>
-                <td>₹${item.amount}</td>
-                <td>${item.category}</td>
-                <td>${item.date}</td>
-                <td>${item.note || "-"}</td>
-                <td>
-                    <div class="action-wrapper">
-                        <button class="action-btn edit" onclick='editIncome("${doc.id}", ${JSON.stringify(item)})'>Edit</button>
-                        <button class="action-btn delete" onclick="deleteIncome('${doc.id}')">Del</button>
-                    </div>
-                </td>
-            </tr>
-        `;
+            table.innerHTML += `
+                <tr>
+                    <td>₹${item.amount}</td>
+                    <td>${item.category}</td>
+                    <td>${item.date}</td>
+                    <td>${item.note || "-"}</td>
+                    <td>
+                        <div class="action-wrapper">
+                            <button class="action-btn edit" onclick='editIncome("${doc.id}", ${JSON.stringify(item)})'>Edit</button>
+                            <button class="action-btn delete" onclick="deleteIncome('${doc.id}')">Del</button>
+                        </div>
+                    </td>
+                </tr>
+            `;
+        });
+
+        document.getElementById("totalIncome").innerText = total;
+
     });
-
-    document.getElementById("totalIncome").innerText = total;
 }
 
 /* ADD / UPDATE */
@@ -229,7 +231,7 @@ async function addIncome() {
         }
 
         clearForm();
-        loadIncome();
+
 
     } catch (error) {
         console.error("Error:", error);
@@ -254,7 +256,6 @@ async function deleteIncome(id) {
 
     try {
         await db.collection("income").doc(id).delete();
-        loadIncome();
     } catch (error) {
         console.error("Error deleting:", error);
     }
@@ -273,7 +274,7 @@ function goBack() {
 }
 
 /* INIT */
-loadIncome();
+loadIncomeRealtime();
 
 </script>
 
