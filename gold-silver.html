@@ -48,6 +48,11 @@ button:hover {
     cursor: pointer;
 }
 
+.info {
+    margin-bottom: 10px;
+    color: #38bdf8;
+}
+
 </style>
 </head>
 
@@ -55,10 +60,11 @@ button:hover {
 
 <div class="container">
 
-    <h2>Add Physical Gold/Silver</h2>
+    <h2>Add Asset</h2>
 
     <div class="info" id="infoBox"></div>
     
+    <input type="text" id="name" placeholder="Asset Name (Physical Gold/Silver)">
     <input type="number" id="buy" placeholder="Buy Price per gram">
     <input type="number" id="grams" placeholder="Quantity (grams)">
     <input type="number" id="current" placeholder="Current Price per gram">
@@ -116,10 +122,6 @@ async function saveAsset() {
 
     let editId = localStorage.getItem("edit_asset_id");
 
-    document.getElementById("infoBox").innerText =
-    `Type: ${type || "-"} | Subtype: ${subtype || "-"}`;
-
-
     await db.collection("assets").add(asset);
 
     alert("Saved ✅");
@@ -130,6 +132,9 @@ function goBack() {
     window.location.href = "asset-subtype.html";
 }
 
+document.getElementById("infoBox").innerText =
+`Type: ${type} | Subtype: ${subtype}`;
+    
 </script>
 
 </body>
