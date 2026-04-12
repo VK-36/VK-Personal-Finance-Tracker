@@ -61,7 +61,7 @@ button:hover {
 
 <div class="container">
 
-    <h2 id="title">Select Subtype</h2>
+    <h2>Select Subtype</h2>
     <div class="subtext" id="subtitle"></div>
 
     <div id="options"></div>
@@ -76,7 +76,7 @@ button:hover {
 
 let type = localStorage.getItem("vkic_type");
 
-document.getElementById("subtitle").innerText = "Category: " + type;
+document.getElementById("subtitle").innerText = "Category: " + (type || "-");
 
 let optionsDiv = document.getElementById("options");
 
@@ -99,7 +99,7 @@ let data = {
         "Gold (Physical)",
         "Gold (ETF / SGB / Digital)",
         "Silver (Physical)",
-        "Silver (ETF)",
+        "Silver (ETF)"
     ],
 
     "Real Estate": [
@@ -107,26 +107,41 @@ let data = {
         "Commercial Property",
         "REITs"
     ],
-
 };
 
+/* 🔥 SMART ROUTING FUNCTION */
+function handleNavigation(subtype) {
+
+    localStorage.setItem("vkic_subtype", subtype);
+
+    /* GOLD & SILVER → SPECIAL PAGE */
+    if (
+        subtype.includes("Gold") ||
+        subtype.includes("Silver")
+    ) {
+        window.location.href = "gold-silver.html";
+    } else {
+        window.location.href = "asset-form.html";
+    }
+}
+
+/* LOAD BUTTONS */
 function loadOptions() {
 
     let list = data[type] || [];
 
     list.forEach(item => {
+
         let btn = document.createElement("button");
         btn.innerText = item;
 
-        btn.onclick = () => {
-            localStorage.setItem("vkic_subtype", item);
-            window.location.href = "asset-form.html";
-        };
+        btn.onclick = () => handleNavigation(item);
 
         optionsDiv.appendChild(btn);
     });
 }
 
+/* BACK */
 function goBack() {
     window.location.href = "add-asset.html";
 }
