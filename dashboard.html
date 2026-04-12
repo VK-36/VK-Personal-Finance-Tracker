@@ -87,47 +87,86 @@ body {
 <script src="firebase.js"></script>
 
 <script>
-async function loadDashboard() {
+function formatMoney(num) {
+    return "₹" + num.toLocaleString("en-IN");
+}
+
+function updateUI(data) {
+    document.getElementById("invested").innerText = formatMoney(data.invested);
+    document.getElementById("value").innerText = formatMoney(data.value);
+    document.getElementById("profit").innerText = formatMoney(data.profit);
+
+    document.getElementById("income").innerText = formatMoney(data.income);
+    document.getElementById("expense").innerText = formatMoney(data.expense);
+    document.getElementById("savings").innerText = formatMoney(data.savings);
+
+    document.getElementById("cash").innerText = formatMoney(data.cash);
+    document.getElementById("netWorth").innerText = formatMoney(data.netWorth);
+}
+
+function loadDashboardRealtime() {
 
     let totalInvested = 0;
     let totalValue = 0;
-
-    let assetSnap = await db.collection("assets").get();
-    assetSnap.forEach(doc => {
-        let a = doc.data();
-        totalInvested += a.invested || 0;
-        totalValue += a.currentValue || 0;
-    });
-
     let totalIncome = 0;
-    let incomeSnap = await db.collection("income").get();
-    incomeSnap.forEach(doc => {
-        totalIncome += doc.data().amount || 0;
-    });
-
     let totalExpense = 0;
-    let expenseSnap = await db.collection("expense").get();
-    expenseSnap.forEach(doc => {
-        totalExpense += doc.data().amount || 0;
+
+    // 🔥 Assets realtime
+    db.collection("assets").onSnapshot(snapshot => {
+        totalInvested = 0;
+        totalValue = 0;
+
+        snapshot.forEach(doc => {
+            let a = doc.data();
+            totalInvested += a.invested || 0;
+            totalValue += a.currentValue || 0;
+        });
+
+        calculateAndUpdate();
     });
 
-    let profit = totalValue - totalInvested;
-    let savings = totalIncome - totalExpense;
-    let cash = savings;
-    let netWorth = cash + totalValue;
+    // 🔥 Income realtime
+    db.collection("income").onSnapshot(snapshot => {
+        totalIncome = 0;
 
-    document.getElementById("invested").innerText = "₹" + totalInvested;
-    document.getElementById("value").innerText = "₹" + totalValue;
-    document.getElementById("profit").innerText = "₹" + profit;
+        snapshot.forEach(doc => {
+            totalIncome += doc.data().amount || 0;
+        });
 
-    document.getElementById("income").innerText = "₹" + totalIncome;
-    document.getElementById("expense").innerText = "₹" + totalExpense;
-    document.getElementById("savings").innerText = "₹" + savings;
+        calculateAndUpdate();
+    });
 
-    document.getElementById("cash").innerText = "₹" + cash;
-    document.getElementById("netWorth").innerText = "₹" + netWorth;
+    // 🔥 Expense realtime
+    db.collection("expense").onSnapshot(snapshot => {
+        totalExpense = 0;
+
+        snapshot.forEach(doc => {
+            totalExpense += doc.data().amount || 0;
+        });
+
+        calculateAndUpdate();
+    });
+
+    function calculateAndUpdate() {
+        let profit = totalValue - totalInvested;
+        let savings = totalIncome - totalExpense;
+        let cash = savings;
+        let netWorth = cash + totalValue;
+
+        updateUI({
+            invested: totalInvested,
+            value: totalValue,
+            profit: profit,
+            income: totalIncome,
+            expense: totalExpense,
+            savings: savings,
+            cash: cash,
+            netWorth: netWorth
+        });
+    }
 }
 
+// Navigation
 function goToAssets() {
     window.location.href = "assets.html";
 }
@@ -140,7 +179,8 @@ function goToGoals() {
     window.location.href = "goal-tracker.html";
 }
 
-loadDashboard();
+// 🚀 Start
+loadDashboardRealtime();
 </script>
 
 </body>
