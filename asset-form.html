@@ -118,9 +118,6 @@ async function loadAsset() {
             document.getElementById("units").value = a.units || "";
             document.getElementById("current").value = a.current || "";
             document.getElementById("date").value = a.date || "";
-
-            document.getElementById("infoBox").innerText =
-                `Editing: ${a.type} | ${a.subtype}`;
         }
 
     } catch (error) {
