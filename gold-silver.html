@@ -20,6 +20,15 @@ body {
     flex-direction: column;
 }
 
+h2 {
+    margin-bottom: 10px;
+}
+
+.info {
+    color: #94a3b8;
+    margin-bottom: 15px;
+}
+
 input {
     padding: 10px;
     margin: 6px;
@@ -39,20 +48,14 @@ button {
 }
 
 button:hover {
-    background: #ca8a04;
+    background: #16a34a;
 }
 
 .back {
-    margin-top: 20px;
+    margin-top: 15px;
     color: #94a3b8;
     cursor: pointer;
 }
-
-.info {
-    margin-bottom: 10px;
-    color: #38bdf8;
-}
-
 </style>
 </head>
 
@@ -60,33 +63,72 @@ button:hover {
 
 <div class="container">
 
-    <h2>Add Asset</h2>
+    <h2 id="title">Add Gold/Silver</h2>
 
     <div class="info" id="infoBox"></div>
-    
-    <input type="text" id="name" placeholder="Asset Name (Physical Gold/Silver)">
+
+    <input type="text" id="name" placeholder="Asset Name (Gold/Silver)">
     <input type="number" id="buy" placeholder="Buy Price per gram">
     <input type="number" id="grams" placeholder="Quantity (grams)">
     <input type="number" id="current" placeholder="Current Price per gram">
     <input type="date" id="date">
 
-    <button onclick="saveAsset()">Save</button>
+    <button onclick="saveAsset()">Save Asset</button>
 
-    <div class="back" onclick="goBack()">
-        ← Back
-    </div>
+    <div class="back" onclick="goBack()">← Back</div>
 
 </div>
 
+<!-- Firebase -->
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
 <script src="firebase.js"></script>
 
 <script>
 
+/* FIXED TYPE */
 let type = "commodity";
 let subtype = "gold/silver";
 
+/* EDIT MODE */
+let editId = localStorage.getItem("edit_asset_id");
+
+/* UI SETUP */
+if (editId) {
+    document.getElementById("title").innerText = "Edit Gold/Silver";
+}
+
+/* INFO TEXT */
+document.getElementById("infoBox").innerText =
+    `Type: ${type} | Subtype: ${subtype}`;
+
+/* LOAD EXISTING DATA */
+async function loadAsset() {
+
+    if (!editId) return;
+
+    try {
+        let doc = await db.collection("assets").doc(editId).get();
+
+        if (doc.exists) {
+            let a = doc.data();
+
+            document.getElementById("name").value = a.name || "";
+            document.getElementById("buy").value = a.buy || "";
+            document.getElementById("grams").value = a.grams || "";
+            document.getElementById("current").value = a.current || "";
+            document.getElementById("date").value = a.date || "";
+
+            document.getElementById("infoBox").innerText =
+                `Editing: ${a.type} | ${a.subtype}`;
+        }
+
+    } catch (error) {
+        console.error("Load error:", error);
+    }
+}
+
+/* SAVE / UPDATE */
 async function saveAsset() {
 
     let name = document.getElementById("name").value;
@@ -96,7 +138,7 @@ async function saveAsset() {
     let date = document.getElementById("date").value;
 
     if (!name || !buy || !grams || !current || !date) {
-        alert("Fill all fields");
+        alert("Please fill all fields");
         return;
     }
 
@@ -117,24 +159,54 @@ async function saveAsset() {
         profit,
         returnPercent,
         date,
-        createdAt: new Date()
+        updatedAt: new Date()
     };
 
-    let editId = localStorage.getItem("edit_asset_id");
+    try {
 
-    await db.collection("assets").add(asset);
+        if (editId) {
 
-    alert("Saved ✅");
-    window.location.href = "assets.html";
+            /* UPDATE */
+            await db.collection("assets").doc(editId).update(asset);
+            alert("Asset Updated ✅");
+
+            localStorage.removeItem("edit_asset_id");
+
+        } else {
+
+            /* ADD */
+            asset.createdAt = new Date();
+
+            await db.collection("assets").add(asset);
+
+            /* HISTORY */
+            await db.collection("history").add({
+                type: "buy",
+                category: "commodity",
+                name: name,
+                amount: invested,
+                units: grams,
+                date: date
+            });
+
+            alert("Asset Added ✅");
+        }
+
+        window.location.href = "assets.html";
+
+    } catch (error) {
+        console.error("Save error:", error);
+    }
 }
 
+/* BACK */
 function goBack() {
     window.location.href = "asset-subtype.html";
 }
 
-document.getElementById("infoBox").innerText =
-`Type: ${type} | Subtype: ${subtype}`;
-    
+/* INIT */
+loadAsset();
+
 </script>
 
 </body>
