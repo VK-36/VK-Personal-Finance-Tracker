@@ -22,7 +22,7 @@ body {
 .home-btn {
     position: fixed;
     bottom: 20px;
-    left: 20px;
+    right: 20px;
     padding: 12px 18px;
     background: #334155;
     color: white;
@@ -55,6 +55,7 @@ input, select {
     margin-top: 10px;
     border-radius: 8px;
     border: none;
+    box-sizing: border-box;
 }
 
 .btn {
@@ -107,9 +108,9 @@ input, select {
     <!-- CREATE / EDIT GOAL -->
     <div class="card">
         <h3>Create / Edit Goal</h3>
-        <input type="text" id="goalName" placeholder="Goal Name (House)">
+        <input type="text" id="goalName" placeholder="Goal Name">
         <input type="number" id="targetAmount" placeholder="Target Amount (₹)">
-        <input type="number" id="years" placeholder="Years (15)">
+        <input type="number" id="years" placeholder="Years">
         <button class="btn" onclick="createGoal()" id="mainBtn">Create Goal</button>
     </div>
 
