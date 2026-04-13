@@ -192,23 +192,45 @@ async function sellAsset(id) {
 
         let a = docSnap.data();
 
-        /* 🔥 ADD TO HISTORY (SELL) */
+        // ✅ SAFE conversion
+        let saleValue = 0;
+
+        if (typeof a.currentValue === "number") {
+            saleValue = a.currentValue;
+        } else {
+            saleValue = parseFloat(
+                String(a.currentValue).replace(/[^0-9.-]+/g, "")
+            ) || 0;
+        }
+
+        // 🔥 Add to history
         await db.collection("history").add({
             type: "sell",
             category: "asset",
             name: a.name,
-            amount: a.currentValue,
+            amount: saleValue,
             units: a.units,
             date: new Date().toISOString().split("T")[0]
         });
 
-        /* ADD TO CASH */
-await db.collection("cash").add({
-    amount: parseFloat(String(a.currentValue).replace(/[^0-9.-]+/g,"")) || 0
-    type: "asset_sale",
-    name: a.name,
-    timestamp: Date.now()
-});
+        // 🔥 Add to cash
+        await db.collection("cash").add({
+            amount: saleValue,
+            type: "asset_sale",
+            name: a.name,
+            timestamp: Date.now()
+        });
+
+        // 🔥 Delete asset
+        await docRef.delete();
+
+        alert("Asset Sold ✅");
+
+    } catch (error) {
+        console.error("Sell error:", error);
+        alert("Something broke. Check console.");
+    }
+}
 
         /* DELETE FROM ASSETS */
         await docRef.delete();
