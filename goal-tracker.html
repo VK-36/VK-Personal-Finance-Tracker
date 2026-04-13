@@ -152,7 +152,7 @@ async function loadGoals() {
         let saved = 0;
         linked.forEach(id => {
             if (assetsMap[id]) {
-                saved += Number(assetsMap[id].value || 0);
+                saved += Number(assetsMap[id].currentValue || 0);
             }
         });
 
@@ -170,7 +170,7 @@ async function loadGoals() {
                         value="${id}" 
                         ${checked}
                         onchange="toggleAsset('${doc.id}', '${id}', this.checked)">
-                    ${asset.name} (₹${asset.value || 0})
+                    ${asset.name} (₹${asset.currentValue || 0})
                 </label>
             `;
         }).join("");
