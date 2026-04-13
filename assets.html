@@ -143,17 +143,16 @@ button:hover {
 
 <script>
 function loadAssetsRealtime() {
-
-    let table = document.getElementById("assetTable");
+let table = document.getElementById("assetTable");
 
     db.collection("assets").onSnapshot(snapshot => {
 
-        table.innerHTML = "";
+        let html = "";
 
         snapshot.forEach(doc => {
             let a = doc.data();
 
-            table.innerHTML += `
+            html += `
             <tr>
                 <td>${a.name || "-"}</td>
                 <td>${a.type || "-"}</td>
@@ -169,7 +168,10 @@ function loadAssetsRealtime() {
             `;
         });
 
+        table.innerHTML = html;
+
     });
+
 }
 
 /* EDIT */
@@ -208,7 +210,7 @@ async function sellAsset(id) {
             category: "asset",
             name: a.name,
             amount: saleValue,
-            units: a.units,
+            units: a.units || 0,
             date: new Date().toISOString().split("T")[0]
         });
 
