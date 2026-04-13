@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>VKIC Dashboard</title>
+<title>VK Personal Finance Dashboard</title>
 
 <style>
 body {
@@ -78,7 +78,7 @@ body {
 
 <body>
 
-<div class="header">VKIC Dashboard</div>
+<div class="header">VK Personal Finance Dashboard</div>
 
 <div class="container">
 
@@ -94,6 +94,8 @@ body {
         <div class="card"><div>Income</div><div class="value" id="income">₹0</div></div>
         <div class="card"><div>Expense</div><div class="value" id="expense">₹0</div></div>
         <div class="card"><div>Savings</div><div class="value" id="savings">₹0</div></div>
+        <div class="card"><div>Cash</div><div class="value" id="cash">₹0</div>
+</div>
     </div>
 
     <!-- Row 3 -->
@@ -127,14 +129,15 @@ let state = {
     invested: 0,
     value: 0,
     income: 0,
-    expense: 0
+    expense: 0,
+    cash: 0
 };
 
 // ✅ Update UI
 function updateUI() {
     let profit = state.value - state.invested;
     let savings = state.income - state.expense;
-    let netWorth = state.value + savings;
+    let netWorth = state.value + state.cash + savings;
 
     document.getElementById("invested").innerText = formatMoney(state.invested);
     document.getElementById("value").innerText = formatMoney(state.value);
@@ -143,6 +146,7 @@ function updateUI() {
     document.getElementById("income").innerText = formatMoney(state.income);
     document.getElementById("expense").innerText = formatMoney(state.expense);
     document.getElementById("savings").innerText = formatMoney(savings);
+    document.getElementById("cash").innerText = formatMoney(state.cash);
 
     document.getElementById("netWorth").innerText = formatMoney(netWorth);
 }
@@ -192,6 +196,19 @@ function loadDashboardRealtime() {
 
         updateUI();
     });
+
+    // 🔥 Cash
+db.collection("cash").onSnapshot(snapshot => {
+    let cash = 0;
+
+    snapshot.forEach(doc => {
+        cash += Number(doc.data().amount) || 0;
+    });
+
+    state.cash = cash;
+
+    safeUpdateUI(); // or updateUI() if you didn’t add safeUpdate yet
+});
 }
 
 // Navigation
