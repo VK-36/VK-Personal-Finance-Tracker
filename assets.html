@@ -152,21 +152,20 @@ let table = document.getElementById("assetTable");
         snapshot.forEach(doc => {
             let a = doc.data();
 
-            html += `
-            <tr>
-                <td>${a.name || "-"}</td>
-                <td>${a.type || "-"}</td>
-                <td>${a.units || "-"}</td>
-                <td>₹${a.invested || 0}</td>
-                <td>₹${a.currentValue || 0}</td>
-                <td>${a.date || "-"}</td>
-                <td>
-                    <button onclick="editAsset('${doc.id}')">✏️</button>
-                    <button onclick="sellAsset('${doc.id}')">💰</button>
-                </td>
-            </tr>
-            `;
-        });
+html += `
+<tr>
+    <td>${a.name || "-"}</td>
+    <td>${a.type || "-"}</td>
+    <td>${a.units || "-"}</td>
+    <td>₹${a.invested || 0}</td>
+    <td>₹${a.currentValue || 0}</td>
+    <td>${a.date || "-"}</td>
+    <td>
+        <button onclick="editAsset('${doc.id}')">✏️</button>
+        <button onclick="sellAsset('${doc.id}')">💰</button>
+    </td>
+</tr>
+`;
 
         table.innerHTML = html;
 
