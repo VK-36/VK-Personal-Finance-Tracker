@@ -113,17 +113,28 @@ async function loadAsset() {
         if (doc.exists) {
             let a = doc.data();
 
+            /* Fill inputs */
             document.getElementById("name").value = a.name || "";
             document.getElementById("buy").value = a.buy || "";
             document.getElementById("units").value = a.units || "";
             document.getElementById("current").value = a.current || "";
             document.getElementById("date").value = a.date || "";
+
+            /* 🔥 FIX: restore type & subtype */
+            type = a.type || type;
+            subtype = a.subtype || subtype;
+
+            localStorage.setItem("vkic_type", type);
+            localStorage.setItem("vkic_subtype", subtype);
+
+            updateInfoBox();
         }
 
     } catch (error) {
         console.error("Load error:", error);
     }
 }
+
 
 /* SAVE / UPDATE */
 async function saveAsset() {
