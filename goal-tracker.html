@@ -127,7 +127,6 @@ input, select {
 <script src="firebase.js"></script>
 
 <script>
-
 let editGoalId = null;
 
 /* LOAD GOALS */
@@ -149,15 +148,32 @@ async function loadGoals() {
         let g = doc.data();
         let linked = g.linkedAssets || [];
 
-        // CALCULATE SAVED FROM LINKED ASSETS
+        // ✅ SAFE SAVED CALCULATION
         let saved = 0;
         linked.forEach(id => {
             if (assetsMap[id]) {
-                saved += assetsMap[id].value;
+                saved += Number(assetsMap[id].value || 0);
             }
         });
 
         let percent = g.target ? ((saved / g.target) * 100).toFixed(1) : 0;
+
+        // ✅ MULTI-ASSET CHECKBOX UI
+        let assetOptions = Object.keys(assetsMap).map(id => {
+
+            let asset = assetsMap[id];
+            let checked = linked.includes(id) ? "checked" : "";
+
+            return `
+                <label style="display:block; margin-top:6px;">
+                    <input type="checkbox" 
+                        value="${id}" 
+                        ${checked}
+                        onchange="toggleAsset('${doc.id}', '${id}', this.checked)">
+                    ${asset.name} (₹${asset.value || 0})
+                </label>
+            `;
+        }).join("");
 
         container.innerHTML += `
         <div class="card">
@@ -172,19 +188,13 @@ async function loadGoals() {
                 <div class="progress" style="width:${percent}%"></div>
             </div>
 
-            <!-- LINK ASSET -->
-            <select id="asset-${doc.id}">
-                ${Object.keys(assetsMap).map(id => `
-                    <option value="${id}">
-                        ${assetsMap[id].name} (₹${assetsMap[id].value})
-                    </option>
-                `).join("")}
-            </select>
-
-            <button class="small-btn" onclick="linkAsset('${doc.id}')">Link Asset</button>
+            <div style="margin-top:10px;">
+                <strong>Link Assets</strong>
+                ${assetOptions}
+            </div>
 
             <!-- ACTIONS -->
-            <div style="display:flex; gap:6px;">
+            <div style="display:flex; gap:6px; margin-top:10px;">
                 <button class="small-btn" onclick='editGoal("${doc.id}", ${JSON.stringify(g)})'>Edit</button>
                 <button class="small-btn delete-btn" onclick="deleteGoal('${doc.id}')">Delete</button>
             </div>
@@ -192,6 +202,27 @@ async function loadGoals() {
         </div>
         `;
     });
+}
+
+/* TOGGLE ASSET LINK */
+async function toggleAsset(goalId, assetId, isChecked) {
+
+    let goalRef = db.collection("goals").doc(goalId);
+    let goal = (await goalRef.get()).data();
+
+    let linked = goal.linkedAssets || [];
+
+    if (isChecked) {
+        if (!linked.includes(assetId)) {
+            linked.push(assetId);
+        }
+    } else {
+        linked = linked.filter(id => id !== assetId);
+    }
+
+    await goalRef.update({ linkedAssets: linked });
+
+    loadGoals();
 }
 
 /* CREATE / UPDATE GOAL */
@@ -241,26 +272,6 @@ function editGoal(id, g) {
 /* DELETE */
 async function deleteGoal(id) {
     await db.collection("goals").doc(id).delete();
-    loadGoals();
-}
-
-/* LINK ASSET */
-async function linkAsset(goalId) {
-
-    let select = document.getElementById("asset-" + goalId);
-    let assetId = select.value;
-
-    let goalRef = db.collection("goals").doc(goalId);
-    let goal = (await goalRef.get()).data();
-
-    let linked = goal.linkedAssets || [];
-
-    if (!linked.includes(assetId)) {
-        linked.push(assetId);
-    }
-
-    await goalRef.update({ linkedAssets: linked });
-
     loadGoals();
 }
 
