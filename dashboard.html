@@ -118,82 +118,81 @@ body {
 <script src="firebase.js"></script>
 
 <script>
+<script>
 function formatMoney(num) {
     return "₹" + num.toLocaleString("en-IN");
 }
 
-function updateUI(data) {
-    document.getElementById("invested").innerText = formatMoney(data.invested);
-    document.getElementById("value").innerText = formatMoney(data.value);
-    document.getElementById("profit").innerText = formatMoney(data.profit);
+// ✅ Central state (fixes async issues)
+let state = {
+    invested: 0,
+    value: 0,
+    income: 0,
+    expense: 0
+};
 
-    document.getElementById("income").innerText = formatMoney(data.income);
-    document.getElementById("expense").innerText = formatMoney(data.expense);
-    document.getElementById("savings").innerText = formatMoney(data.savings);
+// ✅ Update UI
+function updateUI() {
+    let profit = state.value - state.invested;
+    let savings = state.income - state.expense;
+    let netWorth = state.value + savings;
 
-    document.getElementById("netWorth").innerText = formatMoney(data.netWorth);
+    document.getElementById("invested").innerText = formatMoney(state.invested);
+    document.getElementById("value").innerText = formatMoney(state.value);
+    document.getElementById("profit").innerText = formatMoney(profit);
+
+    document.getElementById("income").innerText = formatMoney(state.income);
+    document.getElementById("expense").innerText = formatMoney(state.expense);
+    document.getElementById("savings").innerText = formatMoney(savings);
+
+    document.getElementById("netWorth").innerText = formatMoney(netWorth);
 }
 
+// ✅ Load realtime data
 function loadDashboardRealtime() {
 
-    let totalInvested = 0;
-    let totalValue = 0;
-    let totalIncome = 0;
-    let totalExpense = 0;
-
-    // 🔥 Assets realtime
+    // 🔥 Assets
     db.collection("assets").onSnapshot(snapshot => {
-        totalInvested = 0;
-        totalValue = 0;
+        let invested = 0;
+        let value = 0;
 
         snapshot.forEach(doc => {
             let a = doc.data();
-            totalInvested += a.invested || 0;
-            totalValue += a.currentValue || 0;
+            invested += a.invested || 0;
+            value += a.currentValue || 0;
         });
 
-        calculateAndUpdate();
+        state.invested = invested;
+        state.value = value;
+
+        updateUI();
     });
 
-    // 🔥 Income realtime
+    // 🔥 Income
     db.collection("income").onSnapshot(snapshot => {
-        totalIncome = 0;
+        let income = 0;
 
         snapshot.forEach(doc => {
-            totalIncome += doc.data().amount || 0;
+            income += doc.data().amount || 0;
         });
 
-        calculateAndUpdate();
+        state.income = income;
+
+        updateUI();
     });
 
-    // 🔥 Expense realtime
+    // 🔥 Expense
     db.collection("expense").onSnapshot(snapshot => {
-        totalExpense = 0;
+        let expense = 0;
 
         snapshot.forEach(doc => {
-            totalExpense += doc.data().amount || 0;
+            expense += doc.data().amount || 0;
         });
 
-        calculateAndUpdate();
+        state.expense = expense;
+
+        updateUI();
     });
-
-    function calculateAndUpdate() {
-        let profit = totalValue - totalInvested;
-        let savings = totalIncome - totalExpense;
-        let cash = savings;
-        let netWorth = cash + totalValue;
-
-        updateUI({
-            invested: totalInvested,
-            value: totalValue,
-            profit: profit,
-            income: totalIncome,
-            expense: totalExpense,
-            savings: savings,
-            cash: cash,
-            netWorth: netWorth
-        });
-    }
 }
 
 // Navigation
@@ -211,6 +210,7 @@ function goToGoals() {
 
 // 🚀 Start
 loadDashboardRealtime();
+</script>
 </script>
 
 </body>
