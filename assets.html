@@ -202,6 +202,14 @@ async function sellAsset(id) {
             date: new Date().toISOString().split("T")[0]
         });
 
+        /* ADD TO CASH */
+await db.collection("cash").add({
+    amount: Number(a.currentValue) || 0,
+    type: "asset_sale",
+    name: a.name,
+    timestamp: Date.now()
+});
+
         /* DELETE FROM ASSETS */
         await docRef.delete();
 
