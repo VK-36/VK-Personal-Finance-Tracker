@@ -142,7 +142,6 @@ button:hover {
 <script src="firebase.js"></script>
 
 <script>
-
 function loadAssetsRealtime() {
 
     let table = document.getElementById("assetTable");
@@ -221,14 +220,17 @@ async function sellAsset(id) {
             timestamp: Date.now()
         });
 
-        /* DELETE FROM ASSETS */
+        // 🔥 Delete asset
         await docRef.delete();
 
         alert("Asset Sold ✅");
 
     } catch (error) {
         console.error("Sell error:", error);
+        alert("Something broke. Check console.");
     }
+}
+
 /* NAVIGATION */
 function goToAdd() {
     window.location.href = "add-asset.html";
@@ -238,11 +240,12 @@ function goDashboard() {
     window.location.href = "dashboard.html";
 }
 
- loadAssetsRealtime();
-    
 function goHistory() {
     window.location.href = "history.html";
 }
+
+/* LOAD DATA */
+loadAssetsRealtime();
 
 </script>
 
