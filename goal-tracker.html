@@ -165,7 +165,7 @@ async function loadGoals() {
             let checked = linked.includes(id) ? "checked" : "";
 
             return `
-                <label style="display:block; margin-top:6px;">
+                <label style="display:flex; align-items:center; gap:8px; margin-top:6px;">
                     <input type="checkbox" 
                         value="${id}" 
                         ${checked}
