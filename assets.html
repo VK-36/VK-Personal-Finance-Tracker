@@ -204,7 +204,7 @@ async function sellAsset(id) {
 
         /* ADD TO CASH */
 await db.collection("cash").add({
-    amount: Number(a.currentValue) || 0,
+    amount: parseFloat(String(a.currentValue).replace(/[^0-9.-]+/g,"")) || 0
     type: "asset_sale",
     name: a.name,
     timestamp: Date.now()
