@@ -221,17 +221,6 @@ async function sellAsset(id) {
             timestamp: Date.now()
         });
 
-        // 🔥 Delete asset
-        await docRef.delete();
-
-        alert("Asset Sold ✅");
-
-    } catch (error) {
-        console.error("Sell error:", error);
-        alert("Something broke. Check console.");
-    }
-}
-
         /* DELETE FROM ASSETS */
         await docRef.delete();
 
