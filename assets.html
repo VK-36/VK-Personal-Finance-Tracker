@@ -210,7 +210,7 @@ async function sellAsset(id) {
             category: "asset",
             name: a.name,
             amount: saleValue,
-            units: (a.units !== undefined && a.units !== null) ? a.units : 0
+            units: (a.units !== undefined && a.units !== null) ? a.units : 0,
             date: new Date().toISOString().split("T")[0]
         });
 
