@@ -79,18 +79,16 @@ button:hover {
 
 </div>
 
-<!-- 🔥 Firebase -->
+<!-- Firebase -->
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
 <script src="firebase.js"></script>
 
 <script>
 
-/* FLOW DATA */
+/* STATE */
 let type = localStorage.getItem("vkic_type");
 let subtype = localStorage.getItem("vkic_subtype");
-
-/* EDIT MODE */
 let editId = localStorage.getItem("edit_asset_id");
 
 /* UI SETUP */
@@ -98,9 +96,13 @@ if (editId) {
     document.getElementById("title").innerText = "Edit Asset";
 }
 
-/* INFO TEXT */
-document.getElementById("infoBox").innerText =
-    `Type: ${type || "-"} | Sub Type: ${subtype || "-"}`;
+/* SHOW TYPE INFO */
+function updateInfoBox() {
+    document.getElementById("infoBox").innerText =
+        `Type: ${type || "-"} | Sub Type: ${subtype || "-"}`;
+}
+
+updateInfoBox();
 
 /* LOAD EXISTING DATA */
 async function loadAsset() {
@@ -134,7 +136,6 @@ async function loadAsset() {
         console.error("Load error:", error);
     }
 }
-
 
 /* SAVE / UPDATE */
 async function saveAsset() {
@@ -174,7 +175,6 @@ async function saveAsset() {
 
         if (editId) {
 
-            /* UPDATE */
             await db.collection("assets").doc(editId).update(asset);
             alert("Asset Updated ✅");
 
@@ -182,12 +182,11 @@ async function saveAsset() {
 
         } else {
 
-            /* ADD */
             asset.createdAt = new Date();
 
             await db.collection("assets").add(asset);
 
-            /* 🔥 ADD TO HISTORY (BUY) */
+            /* ADD TO HISTORY */
             await db.collection("history").add({
                 type: "buy",
                 category: "asset",
